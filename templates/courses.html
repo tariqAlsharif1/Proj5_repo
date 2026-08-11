@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>All Courses</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 800px; margin: 20px auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .navbar { display: flex; gap: 15px; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid #eee; }
+        .navbar a { text-decoration: none; color: #3498db; font-weight: bold; padding: 6px 12px; border-radius: 4px; transition: background 0.2s; }
+        .navbar a:hover, .navbar a.active { background: #3498db; color: white; }
+        .course-card { background: #fafafa; border: 1px solid #e1e8ed; padding: 15px; margin-bottom: 15px; border-radius: 6px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="navbar">
+        <a href="/">Register / Profile</a>
+        <a href="/recommendations">Recommendations</a>
+        <a href="/courses" class="active">All Courses</a>
+        <a href="/skills">All Skills</a>
+    </div>
+
+    <h2>Available Courses Catalog</h2>
+    {% for course in courses %}
+    <div class="course-card">
+        <h3 style="margin-top:0; color:#2c3e50;">{{ course.title }}</h3>
+        <p><strong>Platform:</strong> {{ course.platform }} | <strong>Price:</strong> {{ course.price }}</p>
+        <p>{{ course.description }}</p>
+    </div>
+    {% endfor %}
+</div>
+</body>
+</html>

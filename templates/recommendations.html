@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Dashboard</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; padding: 20px; }
+        .container { max-width: 900px; margin: auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .navbar { display: flex; gap: 20px; margin-bottom: 25px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .navbar a { text-decoration: none; color: #3498db; font-weight: bold; }
+        .section { margin-top: 20px; padding: 15px; border: 1px solid #eee; border-radius: 8px; }
+        .badge { display: inline-block; background: #e1f5fe; color: #0288d1; padding: 5px 10px; border-radius: 5px; margin-right: 5px; }
+        .course-card { margin-top: 10px; padding: 15px; border-left: 5px solid #2ecc71; background: #f9f9f9; }
+        input, textarea, button { width: 100%; padding: 10px; margin: 5px 0; border-radius: 5px; border: 1px solid #ddd; }
+        button { background: #3498db; color: white; cursor: pointer; border: none; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="navbar">
+        <a href="/">Register</a>
+        <a href="/recommendations" style="color:#2c3e50;">My Dashboard</a>
+        <a href="/courses">All Courses</a>
+        <a href="/skills">My Skills</a>
+    </div>
+
+    <h2>My Dashboard</h2>
+    <input type="text" id="userId" placeholder="Enter your User ID to load profile...">
+    <textarea id="userText" placeholder="What do you want to learn next?"></textarea>
+    <button onclick="loadDashboard()">Load My Data & Recommendations</button>
+
+    <div id="dashboardContent" class="section" style="display:none;">
+        <h3>Welcome, <span id="userName"></span>!</h3>
+        <p><strong>Your Skills:</strong> <span id="userSkills"></span></p>
+        <hr>
+        <h4>Recommended For You:</h4>
+        <div id="resultsContainer"></div>
+    </div>
+</div>
+
+<script>
+async function loadDashboard() {
+    const userId = document.getElementById('userId').value;
+    const userText = document.getElementById('userText').value;
+    
+    // 1. جلب البيانات الشخصية
+    const profileRes = await fetch(`/api/user/${userId}/profile`);
+    const profile = await profileRes.json();
+    
+    // 2. جلب التوصيات
+    const recRes = await fetch('/api/recommend', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({user_id: parseInt(userId), user_text: userText})
+    });
+    const recs = await recRes.json();
+
+    // العرض
+    document.getElementById('dashboardContent').style.display = 'block';
+    document.getElementById('userName').innerText = profile.username;
+    document.getElementById('userSkills').innerHTML = profile.skills.map(s => `<span class="badge">${s}</span>`).join('');
+    
+    let html = "";
+    recs.recommended_courses.forEach(c => {
+        html += `
+            <div class="course-card">
+                <strong>${c.course_title}</strong> (${c.match_score} Match)<br>
+                <small>${c.platform} | ${c.price}</small>
+            </div>`;
+    });
+    document.getElementById('resultsContainer').innerHTML = html;
+}
+</script>
+</body>
+</html>

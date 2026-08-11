@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Skills</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 800px; margin: 20px auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .navbar { display: flex; gap: 15px; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid #eee; }
+        .navbar a { text-decoration: none; color: #3498db; font-weight: bold; padding: 6px 12px; border-radius: 4px; transition: background 0.2s; }
+        .navbar a:hover, .navbar a.active { background: #3498db; color: white; }
+        .form-group { margin-bottom: 15px; display: flex; gap: 10px; }
+        input[type="text"] { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 15px; }
+        button { background-color: #3498db; color: white; border: none; padding: 10px 18px; font-size: 15px; border-radius: 6px; cursor: pointer; }
+        button:hover { background-color: #2980b9; }
+        .badge { display: inline-block; background: #e1f5fe; color: #0288d1; padding: 8px 14px; border-radius: 6px; font-size: 15px; margin: 5px; font-weight: bold; }
+        .no-skills { color: #7f8c8d; font-style: italic; margin-top: 15px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="navbar">
+        <a href="/">Register / Profile</a>
+        <a href="/recommendations">Recommendations</a>
+        <a href="/courses">All Courses</a>
+        <a href="/skills" class="active">My Skills</a>
+    </div>
+
+    <h2>View User Skills</h2>
+    
+    <div class="form-group">
+        <input type="text" id="searchUserId" placeholder="Enter User ID (e.g., 1)" value="{{ user_id if user_id else '' }}">
+        <button onclick="loadUserSkills()">Show Skills</button>
+    </div>
+
+    {% if user_id %}
+        <h3>Skills for: {{ username }} (ID: #{{ user_id }})</h3>
+        <div style="margin-top: 15px;">
+            {% if skills %}
+                {% for skill in skills %}
+                    <span class="badge"># {{ skill }}</span>
+                {% endfor %}
+            {% else %}
+                <p class="no-skills">No skills found for this user.</p>
+            {% endif %}
+        </div>
+    {% else %}
+        <p class="no-skills">Please enter a User ID above to view their specific skills.</p>
+    {% endif %}
+</div>
+
+<script>
+function loadUserSkills() {
+    const userId = document.getElementById('searchUserId').value.trim();
+    if (userId) {
+        window.location.href = `/skills?user_id=${userId}`;
+    } else {
+        alert("Please enter a valid User ID.");
+    }
+}
+</script>
+</body>
+</html>
