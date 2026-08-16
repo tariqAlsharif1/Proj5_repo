@@ -2,33 +2,74 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>All Courses</title>
+    <title>User Courses</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; color: #333; }
-        .container { max-width: 800px; margin: 20px auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .navbar { display: flex; gap: 15px; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid #eee; }
-        .navbar a { text-decoration: none; color: #3498db; font-weight: bold; padding: 6px 12px; border-radius: 4px; transition: background 0.2s; }
-        .navbar a:hover, .navbar a.active { background: #3498db; color: white; }
-        .course-card { background: #fafafa; border: 1px solid #e1e8ed; padding: 15px; margin-bottom: 15px; border-radius: 6px; }
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f9f9f9; }
+        nav { background: #333; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+        nav a { color: white; text-decoration: none; margin-right: 15px; padding: 8px 12px; background: #555; border-radius: 4px; }
+        nav a:hover { background: #777; }
+        select { display: block; margin: 12px 0; padding: 10px; width: 340px; border: 1px solid #ccc; border-radius: 4px; }
+        ul { list-style-type: square; padding-left: 20px; }
+        li { margin-bottom: 8px; }
     </style>
 </head>
 <body>
-<div class="container">
-    <div class="navbar">
-        <a href="/">Register / Profile</a>
-        <a href="/recommendations">Recommendations</a>
-        <a href="/courses" class="active">All Courses</a>
-        <a href="/skills">All Skills</a>
-    </div>
+    <nav>
+        <a href="/">Register</a>
+        <a href="/courses">Courses</a>
+        <a href="/skills">My Skills</a>
+    </nav>
 
-    <h2>Available Courses Catalog</h2>
-    {% for course in courses %}
-    <div class="course-card">
-        <h3 style="margin-top:0; color:#2c3e50;">{{ course.title }}</h3>
-        <p><strong>Platform:</strong> {{ course.platform }} | <strong>Price:</strong> {{ course.price }}</p>
-        <p>{{ course.description }}</p>
-    </div>
-    {% endfor %}
-</div>
+    <h2>Courses for Selected User Only</h2>
+    <label for="courseUserSelect"><b>Select User:</b></label>
+    <select id="courseUserSelect" onclick="loadCoursesUsersDropdown()" onchange="loadUserCourses()">
+        <option value="">-- Select a User --</option>
+    </select>
+    
+    <h3 id="userGoalTitle"></h3>
+    <ul id="coursesList">
+        <li>Please select a user to view their specific courses.</li>
+    </ul>
+
+    <script>
+        window.onload = function() {
+            loadCoursesUsersDropdown();
+        };
+
+        async function loadCoursesUsersDropdown() {
+            const selectElement = document.getElementById('courseUserSelect');
+            const currentValue = selectElement.value;
+
+            const res = await fetch('/api/users');
+            const users = await res.json();
+            
+            selectElement.innerHTML = '<option value="">-- Select a User --</option>' + 
+                users.map(u => `<option value="${u.id}">${u.username}</option>`).join('');
+            
+            if (currentValue) selectElement.value = currentValue;
+        }
+
+        async function loadUserCourses() {
+            const userId = document.getElementById('courseUserSelect').value;
+            const list = document.getElementById('coursesList');
+            const titleEl = document.getElementById('userGoalTitle');
+            
+            if (!userId) {
+                titleEl.innerText = "";
+                list.innerHTML = "<li>Please select a user to view their specific courses.</li>";
+                return;
+            }
+
+            const res = await fetch(`/api/user/${userId}/courses`);
+            const data = await res.json();
+            
+            titleEl.innerText = `Recommended Courses based on User Skills:`;
+            if (data.length === 0) {
+                list.innerHTML = "<li>No matching courses found for this user's skills.</li>";
+            } else {
+                list.innerHTML = data.map(c => `<li><b>${c.title}</b> - ${c.platform} (<i>${c.price}</i>)</li>`).join('');
+            }
+        }
+    </script>
 </body>
 </html>
